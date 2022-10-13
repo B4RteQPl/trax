@@ -1,0 +1,60 @@
+version: '3'
+services:
+  db:
+    image: 'mariadb:10'
+    command: --default-authentication-plugin=mysql_native_password
+    restart: on-failure
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      main:
+        aliases:
+          - db
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    restart: on-failure
+    ports:
+      - "9002:9000"
+    volumes:
+      - ./:/var/www/trax
+    links:
+      - db
+    depends_on:
+      - db
+    networks:
+      main:
+        aliases:
+          - trax_php
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    restart: on-failure
+    ports:
+      - '8080:80'
+      - '443:443'
+    networks:
+      main:
+        aliases:
+          - nginx
+    volumes:
+      - ./:/var/www/trax
+      - ./docker/logs/nginx/:/var/log/nginx:cached
+    environment:
+      - NGINX_DEV_HOST=${TRAX_HOST}
+      - PHP_PORT=9002:9000
+    depends_on:
+      - php
+volumes:
+  mysql_data:
+networks:
+  main:
