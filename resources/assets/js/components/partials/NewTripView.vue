@@ -35,6 +35,7 @@
 <script>
 import {traxAPI} from "../../traxAPI";
 import DatePicker from "../common/DatePicker";
+import moment from "moment";
 
 export default {
   components: {
@@ -55,9 +56,16 @@ export default {
   watch: {},
   computed: {},
   methods: {
-    dateChanged(date) {
-      this.date = date;
-    },
+		/**
+		 * @param {Object|null} date
+		 */
+		dateChanged(date) {
+			if (date) {
+				date = moment(date, 'YYYY-MM-DD').toISOString(true)
+			}
+
+			this.date = date;
+		},
     fetchCars() {
       axios.get(traxAPI.getCarsEndpoint())
         .then(response => {
@@ -78,7 +86,7 @@ export default {
     submit() {
       if (this.$refs.form.validate()) {
         axios.post(traxAPI.addTripEndpoint(), {
-          date: this.date.toISOString(),
+          date: this.date,
           car_id: this.car,
           miles: this.miles
         })
