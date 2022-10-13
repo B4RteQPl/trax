@@ -10,7 +10,7 @@ class TripListResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -18,7 +18,7 @@ class TripListResource extends JsonResource
         return [
             'id' => $this->id,
             'miles' => $this->miles,
-            'date' => $this->date,
+            'date' => $this->date->format('d/m/Y'),
             'total' => $this->total,
             'car' => new CarDetailResource($this->car)
         ];
